@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أَثَر - دعاءٌ في الخفاء.. وأثرٌ في السماء</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Readex Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: '#080c14',
+                        surface: '#0e1626',
+                        surfaceCard: '#131e33',
+                        brandViolet: '#6366f1',
+                        brandCyan: '#38bdf8'
+                    },
+                    fontFamily: {
+                        readex: ['"Readex Pro"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Readex Pro', sans-serif;
+            background-color: #080c14;
+            background-image: 
+                radial-gradient(at 10% 15%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 85%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.05) 0px, transparent 65%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(14, 22, 38, 0.78);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 9999px;
+        }
+
+        /* Pulse glow */
+        .glow-effect {
+            box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Micro card flip */
+        .reveal-anim {
+            animation: cardPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes cardPop {
+            0% { transform: scale(0.92) translateY(12px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="text-slate-100 flex flex-col justify-between min-h-screen p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Bar -->
+    <header class="max-w-md mx-auto w-full flex items-center justify-between py-3 mb-2">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-sky-400 flex items-center justify-center shadow-lg shadow-indigo-500/25 text-white text-sm font-bold">
+                <i class="fa-solid fa-cloud-moon"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+                    أَثَر
+                </h1>
+                <p class="text-[11px] text-slate-400">دعاءٌ في الخفاء.. وأثرٌ في السماء</p>
+            </div>
+        </div>
+
+        <!-- Sound Toggle Button -->
+        <button 
+            id="sound-toggle-btn"
+            type="button" 
+            onclick="toggleAudioMute()" 
+            class="w-9 h-9 rounded-xl bg-surfaceCard hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition-all active:scale-90"
+            title="كتم / تفعيل الصوت"
+        >
+            <i id="sound-icon" class="fa-solid fa-volume-high text-xs"></i>
+        </button>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md w-full mx-auto my-auto glass-panel rounded-3xl p-5 sm:p-6 relative overflow-hidden transition-all duration-300">
+
+        <!-- ============================================== -->
+        <!-- VIEW 1: MANAGE PARTICIPANTS (SETUP)            -->
+        <!-- ============================================== -->
+        <section id="view-setup" class="space-y-5">
+            <div class="space-y-1">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-white tracking-tight">إعداد المشاركين</h2>
+                    <span id="counter-pill" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                        0 مشاركين
+                    </span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    أدخلوا أسماء الأهل أو الصديقات؛ كل مشارك سيستلم اسماً سرياً ليدعو له طوال الأسبوع دون علمه ودون أي تكرار.
+                </p>
+            </div>
+
+            <!-- Single Name Input -->
+            <form id="add-form" class="flex items-center gap-2" onsubmit="event.preventDefault(); handleAddSingle();">
+                <div class="relative w-full">
+                    <input 
+                        type="text" 
+                        id="single-input" 
+                        placeholder="اكتب الاسم هنا..." 
+                        class="w-full bg-midnight border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl py-3 px-4 text-xs text-white placeholder-slate-500 outline-none transition-all"
+                        autocomplete="off"
+                    >
+                </div>
+                <button 
+                    type="submit"
+                    class="h-10 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-medium text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/30 whitespace-nowrap"
+                >
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>إضافة</span>
+                </button>
+            </form>
+
+            <!-- Bulk Toggle Option -->
+            <div class="pt-0.5">
+                <button 
+                    type="button" 
+                    onclick="toggleBulkField()"
+                    class="text-[11px] text-slate-400 hover:text-indigo-300 flex items-center gap-1.5 transition-colors group"
+                >
+                    <i class="fa-solid fa-list-ul text-indigo-400 group-hover:translate-x-0.5 transition-transform"></i>
+                    <span>لصق قائمة كاملة من الأسماء دفعة واحدة</span>
+                </button>
+
+                <div id="bulk-drawer" class="hidden mt-2.5 p-3 rounded-2xl bg-midnight border border-slate-800 space-y-2">
+                    <textarea 
+                        id="bulk-text" 
+                        rows="3" 
+                        placeholder="ألصق الأسماء هنا مفصولة بسطر جديد أو فواصل (،)..."
+                        class="w-full bg-transparent text-xs text-slate-200 placeholder-slate-600 border-0 focus:outline-none resize-none leading-relaxed"
+                    ></textarea>
+                    <div class="flex items-center justify-between pt-1 border-t border-slate-800/80">
+                        <span class="text-[10px] text-slate-500">يقبل فواصل الأسطر أو علامة (,)</span>
+                        <button 
+                            type="button" 
+                            onclick="handleBulkImport()"
+                            class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 active:scale-95 transition-all"
+                        >
+                            تأكيد الإدراج
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chips Container -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <span>قائمة الأسماء</span>
+                    <button 
+                        type="button" 
+                        id="clear-all-btn"
+                        onclick="clearAllNames()" 
+                        class="text-rose-400/80 hover:text-rose-400 text-[11px] transition-colors hidden"
+                    >
+                        مسح الكل
+                    </button>
+                </div>
+
+                <div id="names-wrapper" class="min-h-[110px] max-h-44 overflow-y-auto custom-scrollbar p-3 rounded-2xl bg-midnight/80 border border-slate-800 flex flex-wrap gap-2 content-start">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Guarantee Note -->
+            <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-3 text-xs text-slate-300">
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-shield-halved text-xs"></i>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-normal">
+                    خوارزمية الدوران السري تضمن رياضياً ألا يأخذ أحد اسمه إطلاقاً، وتوزع الأسماء بنظام حلقة مغلقة عادلة.
+                </p>
+            </div>
+
+            <!-- Action Start Button -->
+            <button 
+                id="start-btn" 
+                onclick="initializePass()"
+                disabled
+                class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-600 hover:opacity-95 active:scale-[0.98] text-white font-semibold text-xs sm:text-sm transition-all shadow-xl shadow-indigo-500/25 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+                <i class="fa-solid fa-arrows-rotate text-sm"></i>
+                <span id="start-btn-label">أدخل اسمين على الأقل للبدء</span>
+            </button>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: HANDOVER PRIVACY SCREEN               -->
+        <!-- ============================================== -->
+        <section id="view-handover" class="hidden py-4 text-center space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 text-xs font-medium">
+                <i class="fa-solid fa-mobile-screen-button text-indigo-400"></i>
+                <span id="handover-step-indicator">المشارك 1 من 4</span>
+            </div>
+
+            <div class="space-y-3">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600/30 to-slate-800 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto text-xl shadow-lg">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                
+                <div class="space-y-1">
+                    <p class="text-xs text-slate-400">مرر الهاتف الآن بهدوء إلى:</p>
+                    <div class="inline-block py-2 px-6 rounded-2xl bg-slate-800/90 border border-indigo-500/40 text-2xl font-bold text-white tracking-wide glow-effect mt-1">
+                        <span id="handover-target-name">...</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed pt-2">
+                    تأكد ألا ينظر أحد إلى الشاشة معك، ليبقى الدعاء سراً خالصاً لله.
+                </p>
+            </div>
+
+            <button 
+                onclick="revealAssignedTarget()"
+                class="w-full py-3.5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-750 border border-slate-700 active:scale-95 text-white font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 group"
+            >
+                <i class="fa-solid fa-fingerprint text-indigo-400 text-base group-hover:scale-110 transition-transform"></i>
+                <span>أنا <strong id="handover-btn-name" class="text-indigo-300">...</strong>، افتح البطاقة</span>
+            </button>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: CONFIDENTIAL REVEAL SCREEN             -->
+        <!-- ============================================== -->
+        <section id="view-reveal" class="hidden py-1 space-y-4 reveal-anim">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="text-xs text-slate-400">
+                    المشارك: <span id="current-user-banner" class="text-white font-semibold">...</span>
+                </div>
+                <div class="flex items-center gap-1 text-[11px] text-amber-400 font-medium bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+                    <i class="fa-solid fa-eye-slash text-[10px]"></i>
+                    <span>أمانة وسر</span>
+                </div>
+            </div>
+
+            <!-- The Secret Card -->
+            <div class="text-center space-y-2 pt-1">
+                <span class="text-xs text-slate-400">رفيق دعائك لهذا الأسبوع بظهر الغيب:</span>
+                
+                <div class="p-6 rounded-3xl bg-gradient-to-b from-indigo-950/70 via-midnight to-surface border border-indigo-500/40 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-28 h-28 bg-indigo-500/20 rounded-full blur-2xl"></div>
+                    <div class="absolute -bottom-10 -left-10 w-28 h-28 bg-sky-500/15 rounded-full blur-2xl"></div>
+
+                    <div class="relative z-10">
+                        <div id="revealed-target-name" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-sky-200 py-1 tracking-tight">
+                            الاسم هنا
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">
+                            اجعل له نصيباً من دعواتك في السجود والوتر وساعات الإجابة
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prayer Focus Chips -->
+            <div class="space-y-2">
+                <div class="text-xs text-slate-400 flex items-center justify-between font-medium">
+                    <span>اختر نية للدعاء له:</span>
+                    <button type="button" onclick="shuffleDuaPrompt()" class="text-[11px] text-indigo-400 hover:text-indigo-300">
+                        صيغة أخرى ↻
+                    </button>
+                </div>
+                <div id="dua-chips-container" class="flex flex-wrap gap-1.5">
+                    <!-- Injected via JS -->
+                </div>
+                <div class="p-3 rounded-2xl bg-midnight border border-slate-800 text-xs text-slate-300 leading-relaxed font-normal" id="dua-quote-box">
+                    "اللهم ارزقه راحة البال، وتيسير الأمور، وافتح له أبواب الخير أينما توجه."
+                </div>
+            </div>
+
+            <!-- Pass Along Button -->
+            <button 
+                onclick="advanceToNextPerson()"
+                class="w-full py-3.5 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-medium text-xs sm:text-sm transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 mt-3"
+            >
+                <i class="fa-solid fa-check text-xs"></i>
+                <span id="reveal-cta-label">حفظت الاسم.. مرر للشخص التالي</span>
+            </button>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 4: CYCLE COMPLETE SCREEN                  -->
+        <!-- ============================================== -->
+        <section id="view-complete" class="hidden text-center py-5 space-y-5 reveal-anim">
+            <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-indigo-500 to-emerald-400 text-white flex items-center justify-center mx-auto text-2xl shadow-xl shadow-indigo-500/25">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+            </div>
+
+            <div class="space-y-1">
+                <h3 class="text-lg font-bold text-white">اكتملت دائرة الدعاء بنجاح!</h3>
+                <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                    الآن كل شخص في مجموعتكم لديه من يدعو له طوال هذا الأسبوع في ظهر الغيب.
+                </p>
+            </div>
+
+            <!-- 7-Day Commitment Banner -->
+            <div class="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 text-xs text-indigo-200 flex items-center justify-center gap-2">
+                <i class="fa-regular fa-calendar-check text-indigo-400"></i>
+                <span>مدة هذا العهد: <strong>أسبوع كامل (7 أيام)</strong> ثم تعاد القرعة</span>
+            </div>
+
+            <!-- Hadith Card -->
+            <div class="p-4 rounded-2xl bg-midnight/90 border border-slate-800 text-right space-y-1.5">
+                <div class="flex items-center gap-1.5 text-xs text-indigo-400 font-semibold">
+                    <i class="fa-solid fa-sparkles text-[10px]"></i>
+                    <span>بشارة نبوية:</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed font-light">
+                    «دَعْوَةُ المَرْءِ المُسْلِمِ لأَخِيهِ بِظَهْرِ الغَيْبِ مُسْتَجَابَةٌ، عِنْدَ رَأْسِهِ مَلَكٌ مُوَكَّلٌ كُلَّمَا دَعَا لأَخِيهِ بِخَيْرٍ، قَالَ المَلَكُ المُوَكَّلُ بِهِ: آمِينَ، وَلَكَ بِمِثْلٍ»
+                </p>
+            </div>
+
+            <!-- Navigation Actions -->
+            <div class="pt-1 flex flex-col gap-2">
+                <button 
+                    onclick="switchView('view-setup')" 
+                    class="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium border border-slate-700 transition-all active:scale-95"
+                >
+                    <i class="fa-solid fa-pen-to-square ml-1 text-slate-400"></i> العودة لقائمة الأسماء
+                </button>
+                <button 
+                    onclick="reRollCycle()" 
+                    class="w-full py-2.5 px-4 rounded-2xl bg-transparent hover:bg-slate-800/40 text-slate-400 hover:text-slate-200 text-xs transition-all"
+                >
+                    <i class="fa-solid fa-rotate ml-1"></i> إعادة القرعة مجدداً فوراً
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer class="max-w-md mx-auto w-full text-center py-2 text-[11px] text-slate-600 font-medium">
+        أَثَر • دعاءٌ في الخفاء.. وأثرٌ في السماء
+    </footer>
+
+    <!-- SCRIPT LOGIC & AUDIO SYNTHESIZER -->
+    <script>
+        // Storage Keys
+        const STORAGE_KEY = 'athar_names_list';
+        const SOUND_KEY = 'athar_sound_pref';
+
+        // State
+        let members = [];
+        let assignments = [];
+        let currentIndex = 0;
+        let isAudioMuted = false;
+
+        // Curated Prayer Focus Categories
+        const prayerTopics = [
+            { id: 'relief', label: "راحة البال والسكينة", quote: "اللهم أنزل على قلبه سكينة وطمأنينة لا تفارقه، واكفه ما أهمّه وأقلقه." },
+            { id: 'ease', label: "التوفيق وتيسير الأمور", quote: "اللهم يسّر له أمره، وافتح له أبواب توفيقك، وسدد خطاه في كل ما يسعى إليه." },
+            { id: 'provision', label: "البركة والرزق الطيب", quote: "اللهم بارك له في رزقه وعمره ووقته، وصبّ عليه الخير صبّاً ولا تجعل عيشه كدّاً." },
+            { id: 'worry', label: "تفريج الهم والكرب", quote: "اللهم فرّج همه، واكشف كربته، وبدّل حزنه فرحاً وضيقه فرجاً عاجلاً غير آجل." },
+            { id: 'healing', label: "الشفاء والعافية", quote: "اللهم متّعه بالصحة والعافية في سمعه وبصره وقوته، واصرف عنه كل أذى وسوء." },
+            { id: 'higher', label: "صلاح القلب والفردوس", quote: "اللهم اجعل قلبه عامراً بحبك، واغفر له ولوالديه، واكتب له الفردوس الأعلى بلا حساب." }
+        ];
+
+        // ==========================================
+        // 1. EMBEDDED WEB AUDIO API SYNTHESIZER
+        // Zero external files, guaranteed reliable sound
+        // ==========================================
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Toggle Audio
+        function toggleAudioMute() {
+            isAudioMuted = !isAudioMuted;
+            localStorage.setItem(SOUND_KEY, isAudioMuted ? 'muted' : 'active');
+            updateSoundIcon();
+            if (!isAudioMuted) {
+                playAudio('tap');
+            }
+        }
+
+        function updateSoundIcon() {
+            const icon = document.getElementById('sound-icon');
+            if (isAudioMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-rose-400 text-xs';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-indigo-400 text-xs';
+            }
+        }
+
+        // Synthesize Audio Cues
+        function playAudio(type) {
+            if (isAudioMuted) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+
+            switch (type) {
+                case 'tap': {
+                    // Soft crisp tick
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                    break;
+                }
+                case 'add': {
+                    // Pleasant two-tone chime (F5 -> C6)
+                    [698.46, 1046.50].forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + i * 0.07);
+                        gain.gain.setValueAtTime(0.1, now + i * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + i * 0.07);
+                        osc.stop(now + i * 0.07 + 0.25);
+                    });
+                    break;
+                }
+                case 'delete': {
+                    // Soft low pop
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(320, now);
+                    osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                    break;
+                }
+                case 'shuffle': {
+                    // Dynamic whoosh / sweep
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                    break;
+                }
+                case 'reveal': {
+                    // Magical celestial harmonic bell chord (D5, F#5, A5, D6)
+                    const chord = [587.33, 739.99, 880.00, 1174.66];
+                    chord.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + (idx * 0.05));
+                        gain.gain.setValueAtTime(0.1, now + (idx * 0.05));
+                        gain.gain.exponentialRampToValueAtTime(0.0005, now + (idx * 0.05) + 0.8);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + (idx * 0.05));
+                        osc.stop(now + (idx * 0.05) + 0.8);
+                    });
+                    break;
+                }
+                case 'next': {
+                    // Clean affirmation chime
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.08); // E5
+                    gain.gain.setValueAtTime(0.09, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                    break;
+                }
+                case 'fanfare': {
+                    // Celebration arpeggio (C5 -> E5 -> G5 -> C6)
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + (i * 0.1));
+                        gain.gain.setValueAtTime(0.14, now + (i * 0.1));
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + (i * 0.1) + 0.7);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + (i * 0.1));
+                        osc.stop(now + (i * 0.1) + 0.7);
+                    });
+                    break;
+                }
+            }
+        }
+
+        // ==========================================
+        // 2. LIFECYCLE & STORAGE
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Restore sound preference
+            const savedSound = localStorage.getItem(SOUND_KEY);
+            if (savedSound === 'muted') {
+                isAudioMuted = true;
+            }
+            updateSoundIcon();
+
+            // Load stored members (empty array if first time)
+            loadMembers();
+            renderChips();
+        });
+
+        function loadMembers() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                members = stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error("Storage error:", e);
+                members = [];
+            }
+        }
+
+        function saveMembers() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+            } catch (e) {
+                console.error("Save error:", e);
+            }
+        }
+
+        // ==========================================
+        // 3. UI RENDERING & MANAGEMENT
+        // ==========================================
+        function renderChips() {
+            const container = document.getElementById('names-wrapper');
+            const counterPill = document.getElementById('counter-pill');
+            const startBtn = document.getElementById('start-btn');
+            const startLabel = document.getElementById('start-btn-label');
+            const clearBtn = document.getElementById('clear-all-btn');
+
+            container.innerHTML = '';
+            counterPill.innerText = `${members.length} مشاركين`;
+
+            if (members.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            if (members.length === 0) {
+                container.innerHTML = `
+                    <div class="w-full text-center py-7 text-slate-500 text-xs">
+                        القائمة فارغة تماماً. أضف أسماء عائلتك أو صديقاتك في الحقل أعلاه.
+                    </div>
+                `;
+            } else {
+                members.forEach((name, index) => {
+                    const chip = document.createElement('div');
+                    chip.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surfaceCard hover:bg-slate-800/90 border border-slate-700/80 text-xs text-slate-200 transition-all";
+                    chip.innerHTML = `
+                        <span>${escapeHtml(name)}</span>
+                        <button 
+                            type="button" 
+                            onclick="removeMember(${index})" 
+                            class="text-slate-400 hover:text-rose-400 transition-colors p-0.5" 
+                            title="حذف"
+                        >
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
+                        </button>
+                    `;
+                    container.appendChild(chip);
+                });
+            }
+
+            // Minimum 2 members required for a derangement cycle
+            if (members.length < 2) {
+                startBtn.disabled = true;
+                const needed = 2 - members.length;
+                startLabel.innerText = needed === 1 
+                    ? "أضف اسماً واحداً إضافياً للبدء" 
+                    : "أضف اسمين على الأقل للبدء";
+            } else {
+                startBtn.disabled = false;
+                startLabel.innerText = `بدء حلقة التوزيع السري (${members.length} مشاركين)`;
+            }
+        }
+
+        function handleAddSingle() {
+            const input = document.getElementById('single-input');
+            const val = input.value.trim();
+            if (!val) return;
+
+            if (members.includes(val)) {
+                showToast("هذا الاسم موجود بالفعل");
+                playAudio('tap');
+                return;
+            }
+
+            members.push(val);
+            saveMembers();
+            renderChips();
+            playAudio('add');
+            input.value = '';
+            input.focus();
+        }
+
+        function toggleBulkField() {
+            playAudio('tap');
+            const drawer = document.getElementById('bulk-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function handleBulkImport() {
+            const textarea = document.getElementById('bulk-text');
+            const raw = textarea.value;
+            if (!raw.trim()) return;
+
+            const names = raw.split(/[\n,،;]+/)
+                             .map(s => s.trim())
+                             .filter(s => s.length > 0);
+
+            let addedCount = 0;
+            names.forEach(name => {
+                if (!members.includes(name)) {
+                    members.push(name);
+                    addedCount++;
+                }
+            });
+
+            saveMembers();
+            renderChips();
+            textarea.value = '';
+            document.getElementById('bulk-drawer').classList.add('hidden');
+            if (addedCount > 0) {
+                playAudio('add');
+                showToast(`تمت إضافة ${addedCount} اسم بنجاح`);
+            } else {
+                playAudio('tap');
+            }
+        }
+
+        function removeMember(index) {
+            playAudio('delete');
+            members.splice(index, 1);
+            saveMembers();
+            renderChips();
+        }
+
+        function clearAllNames() {
+            playAudio('delete');
+            members = [];
+            saveMembers();
+            renderChips();
+        }
+
+        // ==========================================
+        // 4. HAMILTONIAN CYCLE DERANGEMENT ALGORITHM
+        // Strictly guarantees:
+        //  - receiver != giver
+        //  - single closed cycle with no disjoint sub-loops
+        // ==========================================
+        function createDerangement(list) {
+            const pool = [...list];
+
+            // Fisher-Yates shuffle
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+
+            // Create circular chain: i gives to (i+1)%n
+            const pairs = [];
+            for (let i = 0; i < pool.length; i++) {
+                pairs.push({
+                    giver: pool[i],
+                    receiver: pool[(i + 1) % pool.length]
+                });
+            }
+
+            // Shuffle presentation order so order does not reveal pairings
+            for (let i = pairs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+            }
+
+            return pairs;
+        }
+
+        // ==========================================
+        // 5. PASS THE PHONE WORKFLOW
+        // ==========================================
+        function initializePass() {
+            if (members.length < 2) return;
+
+            playAudio('shuffle');
+            assignments = createDerangement(members);
+            currentIndex = 0;
+            setupHandoverView();
+            switchView('view-handover');
+        }
+
+        function setupHandoverView() {
+            const pair = assignments[currentIndex];
+            document.getElementById('handover-step-indicator').innerText = `المشارك ${currentIndex + 1} من ${assignments.length}`;
+            document.getElementById('handover-target-name').innerText = pair.giver;
+            document.getElementById('handover-btn-name').innerText = pair.giver;
+        }
+
+        function revealAssignedTarget() {
+            playAudio('reveal');
+            const pair = assignments[currentIndex];
+            document.getElementById('current-user-banner').innerText = pair.giver;
+            document.getElementById('revealed-target-name').innerText = pair.receiver;
+
+            // Render prayer prompts
+            renderDuaPrompts();
+
+            // Label for button
+            const isLast = (currentIndex === assignments.length - 1);
+            document.getElementById('reveal-cta-label').innerText = isLast 
+                ? "حفظت الاسم.. إتمام الحلقة وتثبيتها" 
+                : "حفظت الاسم.. مرر للشخص التالي";
+
+            switchView('view-reveal');
+        }
+
+        function renderDuaPrompts() {
+            const container = document.getElementById('dua-chips-container');
+            container.innerHTML = '';
+
+            prayerTopics.forEach((topic) => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'text-[11px] px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-indigo-600/30 border border-slate-700 text-slate-300 transition-all active:scale-95';
+                chip.innerText = topic.label;
+                chip.onclick = () => {
+                    playAudio('tap');
+                    document.getElementById('dua-quote-box').innerText = `"${topic.quote}"`;
+                };
+                container.appendChild(chip);
+            });
+
+            shuffleDuaPrompt();
+        }
+
+        function shuffleDuaPrompt() {
+            const random = prayerTopics[Math.floor(Math.random() * prayerTopics.length)];
+            document.getElementById('dua-quote-box').innerText = `"${random.quote}"`;
+        }
+
+        function advanceToNextPerson() {
+            currentIndex++;
+            if (currentIndex < assignments.length) {
+                playAudio('next');
+                setupHandoverView();
+                switchView('view-handover');
+            } else {
+                playAudio('fanfare');
+                switchView('view-complete');
+                triggerCelebration();
+            }
+        }
+
+        function reRollCycle() {
+            initializePass();
+        }
+
+        // ==========================================
+        // 6. UTILITIES
+        // ==========================================
+        function switchView(targetId) {
+            const views = ['view-setup', 'view-handover', 'view-reveal', 'view-complete'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === targetId) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function triggerCelebration() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 65,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#6366f1', '#38bdf8', '#c084fc', '#ffffff']
+                });
+            }
+        }
+
+        function showToast(msg) {
+            const old = document.getElementById('toast-msg');
+            if (old) old.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'toast-msg';
+            toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-slate-200 text-xs px-4 py-2 rounded-2xl shadow-2xl z-50 transition-all';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 250);
+            }, 2500);
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
